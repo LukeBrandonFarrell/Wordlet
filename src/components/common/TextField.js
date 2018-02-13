@@ -17,7 +17,9 @@ const TextField = (props) => {
         autoCapitalize='none'
         secureTextEntry={ secureTextEntry }
         multiline={multiline }
-        numberOfLines={numberOfLines} />
+        numberOfLines={numberOfLines}
+        placeholderTextColor={ (Platform.OS === 'android') ? '#000000AA' : '#b6b6b6' }
+        underlineColorAndroid='#000000AA' />
     </View>
   );
 };
@@ -30,14 +32,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
     ...Platform.select({
       ios: {
+        fontSize: 23,
         paddingLeft: 10,
         borderRadius: 5,
-        borderColor: '#EFEFEF',
+        borderColor: '#dedcdc',
         borderWidth: 1,
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#ededed',
       },
       android: {
-        fontSize: 20,
+        fontSize: 24,
+        color: '#000',
       }
     }),
   },

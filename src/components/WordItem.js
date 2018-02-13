@@ -1,24 +1,37 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { TouchableHighlight } from 'react-native';
 import { Card, Subtitle, TextBlock } from './common';
 import { Actions } from 'react-native-router-flux';
 
+import { setWord, setDefinitions } from '../actions';
+import { connect } from 'react-redux';
+
+const firstToUC = require('../helpers/format.js');
+
 class WordItem extends React.Component {
+  selectWord(){
+    const { word, definition } = this.props.data;
+
+    this.props.setWord(word);
+    this.props.setDefinitions([definition]);
+
+    Actions.WordDetail();
+  }
+
   render() {
     const { word, definition } = this.props.data;
 
     return (
-      <TouchableOpacity onPress={() => Actions.WordDetail({ data: this.props.data }) }>
+      <TouchableHighlight onPress={() => this.selectWord() }>
         <Card style={{ flexDirection: 'column', alignItems: 'flex-start'}}>
-          <Subtitle label={ word } />
+          <Subtitle label={ firstToUC(word) } />
           <TextBlock>
-              A unit of language, consisting of one or more spoken sounds
-              or their written representation, that functions as a principal carrier of meaning.
+            { firstToUC(definition) }
           </TextBlock>
         </Card>
-      </TouchableOpacity>
+      </TouchableHighlight>
     );
   }
 }
 
-export default WordItem;
+export default connect(null, { setWord, setDefinitions })(WordItem);

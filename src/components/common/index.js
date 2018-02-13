@@ -13,3 +13,5 @@ export * from './BackgroundImage';
 export * from './IconWithText';
 export * from './TextBlock';
 export * from './Error';
+export * from './Logo';
+export * from './NonContentText';

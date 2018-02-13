@@ -13,9 +13,9 @@ const Footer = ({ children }) => {
 
 const styles = StyleSheet.create({
   footerStyle : {
-    flex: 1,
-    marginBottom: 70,
-    justifyContent: 'flex-end',
+    width: '100%',
+    position: 'absolute',
+    bottom: 5,
   }
 });
 

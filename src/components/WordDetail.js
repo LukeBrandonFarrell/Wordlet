@@ -1,94 +1,99 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, AsyncStorage } from 'react-native';
+import { View, ScrollView, TouchableOpacity, AsyncStorage } from 'react-native';
 import { Title, Subtitle, CustomButton, NarrowContainer, Footer, Row, IconWithText, TextBlock } from './common';
 import { Actions } from 'react-native-router-flux';
 import axios from 'react-native-axios';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Toast from 'react-native-root-toast';
+
+import { searchWordDetails, saveWord } from '../actions';
+import { connect } from 'react-redux';
+
+const firstToUC = require('../helpers/format.js');
+
+const instance = axios.create({
+  headers: {
+    'X-Mashape-Key': 'rAHO82BrgJmshpIHJ8mpTVz2vvPyp1c0X1gjsn6UYDxEe7on7T',
+    'X-Mashape-Host': 'wordsapiv1.p.mashape.com'
+  }
+});
 
 class WordDetail extends React.Component {
-  state = {
-    synonyms: [],
-    antonyms: [],
+  async componentWillMount() {
+    const { word } = this.props;
+
+    this.props.searchWordDetails(word);
   }
 
-  componentWillMount() {
-    const { word } = this.props.data;
+  saveWord(){
+    const { word, definitions, synonyms, antonyms } = this.props;
 
-    var instance = axios.create({
-      headers: {
-        'X-Mashape-Key': 'rAHO82BrgJmshpIHJ8mpTVz2vvPyp1c0X1gjsn6UYDxEe7on7T',
-        'X-Mashape-Host': 'wordsapiv1.p.mashape.com'
-      }
-    });
-
-    instance.get('https://wordsapiv1.p.mashape.com/words/' + word + '/synonyms')
-      .then((response) => this.setState({ synonyms : response.data.synonyms }))
-      .catch((error) => {
-        console.log(error.response);
-      });
-
-    instance.get('https://wordsapiv1.p.mashape.com/words/' + word + '/antonyms')
-      .then((response) => this.setState({ antonyms : response.data.antonyms }))
-      .catch((error) => {
-        console.log(error.response);
-      });
-  }
-
-  async saveWord(){
-    const { word, definitions } = this.props.data;
-
-    try {
-      await AsyncStorage.setItem('@wordlet:' + word, word);
-      await AsyncStorage.multiSet(definitions.map((element, i) => {
-        return ['@wordlet:' + word + '-definition-' + i, element.definition];
-      }, console.log('Saved')));
-    } catch (error) {
-      // Error saving data
-    }
+    this.props.saveWord(word, definitions, synonyms, antonyms);
   }
 
   renderDefinitions(){
-    const { definitions } = this.props.data;
+    const { definitions } = this.props;
 
-    return definitions.map((element, i) => {
-      return(
-        <TextBlock key={i}>
-          <View style={{ marginRight: 6, height: 8, width: 10 }}>
-            <Icon style={{color: 'black'}} name={'circle'} size={7}/>
-          </View>
-          { this.firstToUpperCase(element.definition) }
-        </TextBlock>
-      );
-    });
+    if(definitions){
+      return definitions.map((element, i) => {
+        let definition = (typeof element === 'object') ? element.definition : element;
+
+        return(
+          <TextBlock key={i}>
+            - { firstToUC(definition) }
+          </TextBlock>
+        );
+      });
+    }
   }
 
   renderSynonyms(){
-    const str = this.firstToUpperCase(this.state.synonyms.join(', '));
+    const { synonyms } = this.props;
 
-    return (
-      <TextBlock>
-        { str }
-      </TextBlock>
-    );
+    if(synonyms.length > 0){
+      const str = firstToUC(synonyms.join(', '));
+
+      return (
+        <View>
+          <Subtitle label="Synonyms" />
+          <TextBlock>
+            { str }
+          </TextBlock>
+        </View>
+      );
+    }
   }
 
   renderAntonyms(){
-    const str = this.firstToUpperCase(this.state.synonyms.join(', '));
+    const { antonyms } = this.props;
 
-    return (
-      <TextBlock>
-        { str }
-      </TextBlock>
-    );
+    if(antonyms.length > 0){
+      const str = firstToUC(antonyms.join(', '));
+
+      return (
+        <View>
+          <Subtitle label="Antonyms" />
+          <TextBlock>
+            { str }
+          </TextBlock>
+        </View>
+      );
+    }
   }
 
-  firstToUpperCase(string)
-  {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  renderSaveButton(){
+    if(!this.props.saved){
+      return(
+        <Footer>
+          <NarrowContainer>
+            <CustomButton label="Save" onPress={() => this.saveWord()} />
+          </NarrowContainer>
+        </Footer>
+      );
+    }
   }
 
   render() {
-    const { word } = this.props.data;
+    const { word } = this.props;
 
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -98,29 +103,29 @@ class WordDetail extends React.Component {
             <IconWithText
               icon="chevron-left"
               text="Back"
-              textSize={18}
+              textSize={22}
               iconSize={20} />
           </TouchableOpacity>
         </Row>
         <ScrollView>
-          <NarrowContainer>
-            <Title label={ this.firstToUpperCase(word) } />
+          <NarrowContainer style={{ paddingBottom: 100 }}>
+            <Title label={ firstToUC(word) } />
             { this.renderDefinitions() }
-            <Subtitle label="Synonyms" />
             { this.renderSynonyms() }
-            <Subtitle label="Antonyms" />
             { this.renderAntonyms() }
           </NarrowContainer>
         </ScrollView>
 
-        <Footer>
-          <NarrowContainer>
-            <CustomButton label="Save" onPress={() => this.saveWord()} />
-          </NarrowContainer>
-        </Footer>
+        { this.renderSaveButton() }
       </View>
     );
   }
 }
 
-export default WordDetail;
+const mapStateToProps = (state) => {
+  const { word, definitions, synonyms, antonyms, saved } = state.selectedWord;
+
+  return { word, definitions, synonyms, antonyms, saved };
+};
+
+export default connect(mapStateToProps, { searchWordDetails, saveWord })(WordDetail);

@@ -1,39 +1,41 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import axios from 'react-native-axios';
-import { Actions } from 'react-native-router-flux';
-import { TextField, CustomButton, NarrowContainer, BackgroundImage, Row, Spinner, Error } from './common';
+import { View, Text, Keyboard, Platform, LayoutAnimation } from 'react-native';
+
+import { searchFormUpdate, searchWord } from '../actions';
+import { connect } from 'react-redux';
+
+import { TextField, CustomButton, NarrowContainer, BackgroundImage, Row, Spinner, Error, Logo } from './common';
 
 class WordSearch extends React.Component {
-  state = { word: '', loading: false, error: '' }
+  state = { keyboard: false, }
+
+  componentWillMount () {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
+  }
+
+  componentWillUnmount () {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow () {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ keyboard: true });
+  }
+
+  _keyboardDidHide () {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ keyboard: false });
+  }
 
   searchWords(){
-    this.setState({
-      loading: true,
-    });
-
-    var instance = axios.create({
-      headers: {
-        'X-Mashape-Key': 'rAHO82BrgJmshpIHJ8mpTVz2vvPyp1c0X1gjsn6UYDxEe7on7T',
-        'X-Mashape-Host': 'wordsapiv1.p.mashape.com'
-      }
-    });
-
-    instance.get('https://wordsapiv1.p.mashape.com/words/' + this.state.word + '/definitions')
-      .then((response) => {
-        this.setState({ loading : false, error: '', });
-        Actions.WordDetail({ data: response.data });
-      })
-      .catch(() => {
-        this.setState({
-          loading : false,
-          error: 'Word not found',
-        });
-      });
+    this.props.searchWord(this.props.term);
+    Keyboard.dismiss();
   }
 
   renderButton(){
-    if(!this.state.loading){
+    if(!this.props.loading){
       return <CustomButton label="Search" onPress={() => this.searchWords()} />;
     }
 
@@ -41,7 +43,7 @@ class WordSearch extends React.Component {
   }
 
   renderError(){
-    const { error } = this.state;
+    const { error } = this.props;
 
     if(error){
       return <Error label={error} />;
@@ -49,27 +51,42 @@ class WordSearch extends React.Component {
   }
 
   render() {
+    const { keyboard } = this.state;
+
     return (
       <View style={{ flex: 1 }}>
-        <BackgroundImage url={ require('../../resources/bg-1.jpg') } />
-
-        <NarrowContainer>
-          <Row verticalPadding={40}>
-            <TextField
-              label='Search'
-              value={ this.state.word }
-              onChangeText={(text) => this.setState({ word: text, error: '' })}
-            />
-            { this.renderButton() }
-            { this.renderError() }
-            <Text style={{ color: 'white' }}>
-                Save word meanings, synonyms and antonyms... so you can come back and remind yourself later.
-            </Text>
+        <View style={{ flex: keyboard ? 0.5 : 1 }}>
+          <BackgroundImage url={ require('../../resources/bg-1.jpg') } />
+          <Row verticalPadding={ (Platform.OS === 'android') ? 12 : 2 }>
+            <Logo url={ require('../../resources/logo-white.png') } style={{ width:'70%', height:80, }}/>
           </Row>
-        </NarrowContainer>
+        </View>
+
+        <View style={{ flex: 3, backgroundColor: '#FFF', }}>
+          <NarrowContainer>
+            <Row verticalPadding={18}>
+              <TextField
+                label='Search word'
+                value={ this.props.term }
+                onChangeText={(text) => this.props.searchFormUpdate({ prop: 'term', value: text })}
+              />
+              { this.renderButton() }
+              { this.renderError() }
+              <Text style={{ color: 'black' }}>
+                  Save word meanings, synonyms and antonyms... so you can come back and remind yourself later.
+              </Text>
+            </Row>
+          </NarrowContainer>
+        </View>
       </View>
     );
   }
 }
 
-export default WordSearch;
+const mapStateToProps = (state) => {
+  const { term, loading, error } = state.searchForm;
+
+  return { term, loading, error };
+};
+
+export default connect(mapStateToProps, { searchFormUpdate, searchWord })(WordSearch);

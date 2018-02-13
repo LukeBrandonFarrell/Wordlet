@@ -1,53 +1,20 @@
 import React from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
-import { Router, Stack, Scene } from 'react-native-router-flux';
-
-import WordSearch from './components/WordSearch';
-import WordDetail from './components/WordDetail';
-import WordList from './components/WordList';
-
-import { TabIcon } from './components/common';
+import Router from './Router';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import ReduxThunk from 'redux-thunk';
+import reducers from './reducers';
 
 class App extends React.Component {
-  componentWillMount () {
-    StatusBar.setBarStyle('light-content', true);
-  }
-
   render(){
-    const { tabbarStyle } = styles;
-
+    const store = createStore(reducers, {}, applyMiddleware(ReduxThunk));
+    
     return (
-      <Router>
-        <Stack key="root"
-          hideNavBar>
-          <Stack key="tabs"
-            tabs={true}
-            showLabel={false}
-            tabBarStyle={{}}
-            tabBarPosition='bottom'>
-            <Scene key="Search"
-              component={WordSearch}
-              iconName="search"
-              icon={TabIcon}
-              hideNavBar/>
-            <Scene key="Words"
-              component={WordList}
-              iconName="list"
-              icon={TabIcon}
-              hideNavBar />
-          </Stack>
-
-          <Scene key="WordDetail" component={WordDetail}/>
-        </Stack>
-      </Router>
+      <Provider store={store}>
+        <Router />
+      </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  tabbarStyle : {
-
-  },
-});
 
 export default App;
