@@ -55,11 +55,8 @@ class WordSearch extends React.Component {
 
     return (
       <View style={{ flex: 1 }}>
-        <View style={{ flex: keyboard ? 0.5 : 1 }}>
+        <View style={{ flex: keyboard ? 0.2 : 0.7 }}>
           <BackgroundImage url={ require('../../resources/bg-1.jpg') } />
-          <Row verticalPadding={ (Platform.OS === 'android') ? 12 : 2 }>
-            <Logo url={ require('../../resources/logo-white.png') } style={{ width:'70%', height:80, }}/>
-          </Row>
         </View>
 
         <View style={{ flex: 3, backgroundColor: '#FFF', }}>
