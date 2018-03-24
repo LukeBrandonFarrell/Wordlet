@@ -6,9 +6,8 @@ iOS / Android application which allows you to find the meaning of words and save
 
 Go and download it in the Apple or Playstore.
 
-[Download on Android](https://github.com/LukeBrandonFarrell/open-source-images/blob/master/android.svg)
-[Android](https://play.google.com/store/apps/details?id=com.cwords&hl=en_GB)
-[iOS](https://play.google.com/store/apps/details?id=com.cwords&hl=en_GB)
+[Download on Android](https://play.google.com/store/apps/details?id=com.cwords&hl=en_GB)<br>
+[Download on iOS](https://itunes.apple.com/gb/app/wordlet/id1345619928?mt=8)
 
 The application is built with React Native.
 
