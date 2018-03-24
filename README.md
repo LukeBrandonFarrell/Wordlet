@@ -6,6 +6,7 @@ iOS / Android application which allows you to find the meaning of words and save
 
 Go and download it in the Apple or Playstore.
 
+[Download on Android](https://github.com/LukeBrandonFarrell/open-source-images/blob/master/android.svg)
 [Android](https://play.google.com/store/apps/details?id=com.cwords&hl=en_GB)
 [iOS](https://play.google.com/store/apps/details?id=com.cwords&hl=en_GB)
 
